@@ -1,4 +1,4 @@
-# FileEdit
+# markdown-editor
 
 一个基于 **React + Electron + TypeScript + Vite** 的轻量级、跨平台文件编辑器。
 
