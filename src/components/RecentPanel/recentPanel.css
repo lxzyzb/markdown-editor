@@ -1,0 +1,251 @@
+/* ==========================================================================
+   最近文件面板
+   ========================================================================== */
+.recent-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* 头部 */
+.recent-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.recent-title {
+  flex: 0 0 auto;
+}
+
+.recent-count {
+  font-size: 10px;
+  font-weight: 500;
+  background-color: var(--bg-elevated);
+  padding: 1px 7px;
+  border-radius: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+.recent-header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+}
+
+.recent-header-actions button {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: transparent;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.recent-header-actions button:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.recent-header-actions button:active:not(:disabled) {
+  background-color: var(--bg-active);
+}
+
+.recent-header-actions button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.recent-header-actions button.danger:hover:not(:disabled) {
+  color: var(--danger);
+  background-color: var(--danger-soft);
+}
+
+/* 列表区 */
+.recent-list {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding: 4px 0 12px;
+}
+
+.recent-empty {
+  padding: 32px 16px;
+  color: var(--text-faint);
+  font-size: 12px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* 分组 */
+.recent-group {
+  margin-top: 4px;
+}
+
+.recent-group:first-child {
+  margin-top: 2px;
+}
+
+.recent-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.recent-group-header:hover {
+  color: var(--text-primary);
+}
+
+.recent-group-caret {
+  font-size: 9px;
+  width: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--dur-fast) var(--ease-out);
+  color: var(--text-faint);
+}
+
+.recent-group-caret.expanded {
+  transform: rotate(90deg);
+}
+
+.recent-group-label {
+  flex: 0 0 auto;
+}
+
+.recent-group-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.recent-group-select-all {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+  opacity: 0.7;
+  transition: opacity var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.recent-group-select-all:hover {
+  background-color: var(--bg-hover);
+  opacity: 1;
+}
+
+.recent-group-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 单项 */
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 32px 5px 26px;
+  font-size: 12.5px;
+  cursor: pointer;
+  color: var(--text-primary);
+  border-left: 2px solid transparent;
+  position: relative;
+  transition: background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.recent-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.recent-item.selected {
+  background-color: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+
+.recent-item-checkbox {
+  flex: 0 0 auto;
+  cursor: pointer;
+  margin: 0;
+  accent-color: var(--accent);
+  width: 13px;
+  height: 13px;
+}
+
+.recent-item-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: -0.01em;
+}
+
+.recent-item-time {
+  font-size: 10.5px;
+  color: var(--text-faint);
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 删除按钮：绝对定位避免占用布局空间导致 hover 时整体抖动 */
+.recent-item-delete {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.recent-item:hover .recent-item-delete {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.recent-item-delete:hover {
+  background-color: var(--danger-soft);
+  color: var(--danger);
+}

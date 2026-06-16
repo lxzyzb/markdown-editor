@@ -1,0 +1,25 @@
+.editor-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  background-color: var(--bg-primary);
+}
+
+.editor-area-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.editor-area-empty h2 {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.editor-area-empty p {
+  font-size: 13px;
+}

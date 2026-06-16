@@ -1,0 +1,36 @@
+/* ==========================================================================
+   垂直拖拽条 — Sidebar 与主内容之间的可拖动分隔
+   视觉宽度 4px，点击区用 ::before 扩展到 ~10px
+   ========================================================================== */
+.resizer {
+  position: relative;
+  flex-shrink: 0;
+  width: 4px;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease-out);
+  z-index: 5;
+}
+
+.resizer::before {
+  content: '';
+  position: absolute;
+  inset: 0 -3px;
+  /* 视觉不变，点击区扩大 6px */
+}
+
+.resizer:hover,
+.resizer:active,
+body.resizer-dragging .resizer {
+  background-color: var(--accent);
+}
+
+/* 拖拽时整页禁止文本选择 + 统一光标 */
+body.resizer-dragging {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+body.resizer-dragging * {
+  cursor: col-resize !important;
+}

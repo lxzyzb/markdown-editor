@@ -1,0 +1,26 @@
+.sidebar {
+  width: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+/* 顶部的内发光，让侧边栏有"独立面板"的感觉 */
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: var(--rail-height);
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.025) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}

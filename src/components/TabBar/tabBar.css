@@ -1,0 +1,137 @@
+/* ==========================================================================
+   标签栏
+   ========================================================================== */
+.tabbar {
+  display: flex;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: var(--tabbar-height);
+  position: relative;
+}
+
+/* 滚动条隐藏 — 标签栏横向滚动用 Shift+Wheel */
+.tabbar::-webkit-scrollbar {
+  height: 0;
+}
+
+.tabbar-empty {
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 12px;
+  height: var(--tabbar-height);
+  min-width: 120px;
+  max-width: 200px;
+  border-right: 1px solid var(--border-soft);
+  cursor: pointer;
+  font-size: 12px;
+  background-color: var(--bg-surface);
+  color: var(--text-muted);
+  user-select: none;
+  position: relative;
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.tab:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* 激活态：1px 顶部电青色线条 + 略浅底色 + 内容下边对齐 */
+.tab-active {
+  background-color: var(--bg-void);
+  color: var(--text-primary);
+}
+
+.tab-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.tab-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: -0.01em;
+}
+
+.tab-dirty {
+  color: var(--warning);
+  font-size: 9px;
+  line-height: 1;
+}
+
+.tab-close {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.tab:hover .tab-close,
+.tab-active .tab-close {
+  opacity: 1;
+}
+
+.tab-close:hover {
+  background-color: var(--bg-active);
+  color: var(--text-primary);
+}
+
+/* 标签栏左：tabs 列表 */
+.tabbar-tabs {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.tab-markdown .tab-name {
+  color: var(--text-primary);
+}
+
+.tab-markdown .tab-name::before {
+  content: "M ";
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 4px;
+  margin-right: 4px;
+  border-radius: 2px;
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  vertical-align: 1px;
+}

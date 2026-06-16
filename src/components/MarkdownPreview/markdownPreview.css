@@ -1,0 +1,432 @@
+/* ==========================================================================
+   Markdown 预览
+   行级编辑模型：
+   - .md-block  只是容器（限制最大宽度 + 居中）
+   - .md-line   是真正的可点击/可编辑单位（行）
+   - .md-line-hover 不变样式：遵守"点击区域样式不要变化"
+   ========================================================================== */
+.md-preview {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  padding: 36px 24px 80px;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.md-preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.md-preview::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.md-preview::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 5px;
+  border: 2px solid var(--bg-base);
+}
+.md-preview::-webkit-scrollbar-thumb:hover {
+  background-color: var(--border-strong);
+}
+
+/* ==========================================================================
+   块容器：仅负责宽度与居中，不绘制任何视觉边框/背景
+   ========================================================================== */
+.md-block {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto 4px;
+}
+
+/* ==========================================================================
+   行：可点击 + 可编辑
+   - 默认：与未编辑态完全一致，无背景、无边框
+   - hover：行号浮现；不改变背景、不画左边线
+   ========================================================================== */
+.md-line {
+  position: relative;
+  display: block;
+  padding: 0 56px 0 14px;
+  border-left: 2px solid transparent;
+  border-radius: 2px;
+  cursor: text;
+  min-height: 1.7em;
+  line-height: 1.7;
+  /* 不写死 font-size —— 让 .md-line-html 内的元素与 .md-line-input 共用同一基准
+     这样 h1 显示是 1.85em，进入编辑时 input 也是 1.85em，不会跳尺寸 */
+}
+
+.md-block-code .md-line {
+  /* 代码块行用更小字号与等宽字体；input 也按这套继承，不会跳 */
+  font-size: 12.5px;
+  line-height: 1.55;
+  font-family: var(--font-mono);
+}
+
+.md-line:hover {
+  /* 悬浮不再高亮灰底（用户要求） */
+  background-color: transparent;
+  border-left-color: transparent;
+}
+
+.md-line-html {
+  display: block;
+  word-wrap: break-word;
+}
+
+/* 行右侧的源行号标签（hover 时浮现），与原设计一致 */
+.md-line-gutter {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.md-line:hover .md-line-gutter {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   编辑态：被点击的行仅切换为单行 <input>
+   样式与未选中态完全一致 — 不加灰底、不加边框/阴影
+   ========================================================================== */
+.md-line-editing {
+  cursor: text;
+}
+
+.md-line-editing:hover {
+  background-color: transparent;
+  border-left-color: transparent;
+}
+
+.md-line-input {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+  outline: none;
+  /* 关键：所有排版属性全部 inherit，
+     —— 让 h1 行编辑时是 1.85em、代码行是 12.5px，跟显示态完全一致 */
+  font: inherit;
+  caret-color: var(--accent);
+}
+
+.md-line-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* 覆盖浏览器默认的蓝色 ::selection —— 手动选中文本时也用主题色，不再刺眼 */
+.md-line-input::selection {
+  background-color: var(--accent-soft, var(--bg-hover));
+  color: inherit;
+}
+.md-line-input::-moz-selection {
+  background-color: var(--accent-soft, var(--bg-hover));
+  color: inherit;
+}
+
+/* 代码块行：单行编辑使用等宽字体 */
+.md-line-code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background-color: var(--bg-elevated);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--text-primary);
+}
+
+/* 标题行编辑：复用对应标题的字号 / 字重 / 行高 —— 切到 input 时不跳尺寸 */
+.md-block-heading .md-line-input {
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.md-block-h1 .md-line-input {
+  font-size: 1.85em;
+  /* 与 h1 保持完全一致：底部分隔线 + 内边距 + 与下一块的外边距 */
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.md-block-h2 .md-line-input {
+  font-size: 1.45em;
+  /* 与 h2 保持完全一致 */
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.md-block-h3 .md-line-input { font-size: 1.2em; }
+.md-block-h4 .md-line-input { font-size: 1.05em; }
+.md-block-h5 .md-line-input { font-size: 0.95em; color: var(--text-secondary); }
+.md-block-h6 .md-line-input { font-size: 0.9em; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ==========================================================================
+   类型样式：选择器改为 .md-line-html 内部的元素
+   ========================================================================== */
+
+/* 标题 */
+.md-block-heading .md-line-html :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.md-block-heading .md-line-html h1 { font-size: 1.85em; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.md-block-heading .md-line-html h2 { font-size: 1.45em; padding-bottom: 4px; border-bottom: 1px solid var(--border-soft); }
+.md-block-heading .md-line-html h3 { font-size: 1.2em; }
+.md-block-heading .md-line-html h4 { font-size: 1.05em; }
+.md-block-heading .md-line-html h5 { font-size: 0.95em; color: var(--text-secondary); }
+.md-block-heading .md-line-html h6 { font-size: 0.9em; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* 段落 */
+.md-block-paragraph .md-line-html p {
+  margin: 0;
+}
+
+/* 列表 */
+.md-block-list .md-line-html ul,
+.md-block-list .md-line-html ol {
+  margin: 0;
+  padding-left: 1.4em;
+}
+.md-block-list .md-line-html li {
+  margin: 0.1em 0;
+}
+.md-block-list .md-line-html li > p {
+  margin: 0;
+}
+
+/* 引用 */
+.md-block-blockquote .md-line-html blockquote {
+  margin: 0;
+  padding: 4px 10px;
+  border-left: 3px solid var(--accent);
+  color: var(--text-secondary);
+  background-color: var(--bg-surface);
+  border-radius: 0 3px 3px 0;
+}
+
+/* 代码块：让行内 code 块在一行里显示为代码块样式 */
+.md-block-code .md-line-html {
+  display: block;
+  background-color: var(--bg-elevated);
+  border-left: 1px solid var(--border-soft);
+  border-right: 1px solid var(--border-soft);
+  padding: 1px 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+.md-block-code .md-line:first-child .md-line-html {
+  border-top: 1px solid var(--border-soft);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+.md-block-code .md-line:last-child .md-line-html {
+  border-bottom: 1px solid var(--border-soft);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.md-block-code .md-line-html code {
+  background-color: transparent;
+  padding: 0 4px;
+  font-size: 12.5px;
+}
+.md-block-code .md-line-input {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+/* 水平线 */
+.md-block-hr .md-line-html hr {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* 链接 */
+.md-preview a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.md-preview a:hover {
+  border-bottom-color: var(--accent);
+}
+
+/* 强调 */
+.md-preview strong { font-weight: 700; }
+.md-preview em { font-style: italic; }
+.md-preview del { color: var(--text-faint); }
+
+/* 行内标签 hover 提示：可点击进入片段编辑 */
+.md-line-html strong:hover,
+.md-line-html em:hover,
+.md-line-html code:hover,
+.md-line-html del:hover {
+  background-color: var(--bg-hover, rgba(0, 0, 0, 0.04));
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* hr 行（整行只渲染一条分隔线） */
+.md-line-hr {
+  padding: 4px 0;
+}
+.md-line-hr-rule {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* 表格 */
+.md-preview table {
+  border-collapse: collapse;
+  margin: 4px 0;
+  font-size: 0.92em;
+  width: 100%;
+  table-layout: fixed; /* 列宽由首行决定，避免内容长短造成错位 */
+}
+.md-preview th, .md-preview td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  vertical-align: top;
+  word-break: break-word;
+}
+.md-preview th {
+  background-color: var(--bg-surface);
+  font-weight: 600;
+}
+.md-table-cell-center { text-align: center; }
+.md-table-cell-left  { text-align: left; }
+.md-table-cell-right { text-align: right; }
+
+/* ==========================================================================
+   表格块：水平可滚动（避免列多时撑破容器），行级可点击编辑
+   ========================================================================== */
+.md-block-table {
+  max-width: 760px;
+  margin: 0 auto 8px;
+  padding: 0 1px; /* 给表格最左/最右 1px 边框留出空间，避免被 overflow 裁掉 */
+  overflow-x: auto;
+}
+
+.md-block-table .md-table {
+  margin: 0;
+}
+
+.md-line-table-row {
+  display: table-row; /* 覆盖 .md-line 的 display:block，保留表格行布局 */
+  cursor: text;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.md-line-table-row:hover {
+  background-color: transparent; /* 遵守：点击区域样式不要变化 */
+}
+.md-line-table-row.md-line-editing {
+  cursor: text;
+}
+
+.md-line-table-cell-editing {
+  padding: 0 !important;
+  border-color: var(--accent);
+}
+.md-line-table-cell-editing .md-line-input {
+  width: 100%;
+  padding: 6px 10px;
+  margin: 0;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+  outline: none;
+  font: inherit;
+  font-size: 0.92em;
+  line-height: 1.5;
+  caret-color: var(--accent);
+}
+
+/* ==========================================================================
+   行内 markdown 片段（点击特殊符号包裹的内容只编辑该片段）
+   ========================================================================== */
+.md-segment {
+  display: inline;
+}
+.md-segment-clickable {
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.md-segment-clickable:hover {
+  background-color: var(--bg-hover, rgba(0, 0, 0, 0.04));
+}
+.md-segment-editing {
+  display: inline-block;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  padding: 0 4px;
+  line-height: 1.4;
+}
+.md-segment-editing .md-segment-input {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  padding: 0;
+  margin: 0;
+  min-width: 1ch;
+  width: auto;
+}
+.md-inline-code {
+  background-color: var(--bg-surface);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+/* 图片 */
+.md-preview img {
+  max-width: 100%;  border-radius: 3px;
+}
+
+/* 任务列表 */
+.md-preview input[type='checkbox'] {
+  margin-right: 6px;
+  accent-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-line,
+  .md-line-gutter {
+    transition: none;
+  }
+}

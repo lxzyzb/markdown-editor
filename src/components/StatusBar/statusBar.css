@@ -1,0 +1,117 @@
+/* ==========================================================================
+   状态栏 — 中性石板灰（避免高饱和度的强调色）
+   ========================================================================== */
+.statusbar {
+  height: var(--statusbar-height);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  background: var(--statusbar-bg);
+  color: var(--statusbar-fg);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--statusbar-border);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.statusbar-item {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.statusbar-item:hover {
+  opacity: 1;
+}
+
+/* 保存状态指示 */
+.statusbar-save {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.statusbar-save::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.statusbar-save.ok {
+  color: var(--statusbar-save-ok);
+}
+
+.statusbar-save.fail {
+  color: var(--statusbar-save-fail);
+  animation: none;
+}
+
+.statusbar-save.fail::before {
+  box-shadow: none;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.statusbar-spacer {
+  flex: 1;
+}
+
+/* 主题切换按钮 */
+.statusbar-theme {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  margin: 0 -8px 0 0;
+  height: 100%;
+  font-size: 11px;
+  font-weight: 600;
+  color: inherit;
+  border-radius: 0;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.statusbar-theme:hover {
+  background-color: var(--statusbar-hover);
+}
+
+.statusbar-theme:active {
+  background-color: var(--statusbar-active);
+}
+
+.statusbar-theme-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.statusbar-theme-label {
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusbar-save::before {
+    animation: none;
+  }
+}

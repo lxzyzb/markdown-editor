@@ -1,0 +1,271 @@
+/* ==========================================================================
+   设计令牌 — 石墨终端主题
+   冷调石板中性色 + 单一电青色签名强调
+   ========================================================================== */
+:root {
+  /* 表面层级（从深到浅） */
+  --bg-void: #0c0e13;
+  --bg-surface: #151821;
+  --bg-elevated: #1d2130;
+  --bg-input: #0f1117;
+  --bg-hover: #232838;
+  --bg-active: #2a3045;
+
+  /* 文本 */
+  --text-primary: #e4e7ee;
+  --text-muted: #7a8195;
+  --text-faint: #545a6c;
+
+  /* 签名强调色 */
+  --accent: #22d3ee;
+  --accent-strong: #67e8f9;
+  --accent-soft: rgba(34, 211, 238, 0.16);
+  --accent-line: rgba(34, 211, 238, 0.45);
+  --accent-glow: rgba(34, 211, 238, 0.35);
+
+  /* 状态色 */
+  --danger: #f97070;
+  --danger-soft: rgba(249, 112, 112, 0.18);
+  --warning: #f5b942;
+  --success: #5fdbb1;
+
+  /* 描边 */
+  --border: #262a36;
+  --border-soft: #1d2130;
+  --border-strong: #323748;
+
+  /* 字体 */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto,
+    'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Source Code Pro',
+    Consolas, Monaco, monospace;
+
+  /* 动效 */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-med: 200ms;
+
+  /* 尺寸 */
+  --sidebar-width: 240px;
+  --tabbar-height: 32px;
+  --statusbar-height: 22px;
+  --rail-height: 2px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background-color: var(--bg-void);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+button:focus-visible {
+  outline: 1.5px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-faint);
+}
+
+/* ==========================================================================
+   应用主布局
+   ========================================================================== */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+/* 顶部签名"导轨" — 应用最上方的电青色细线 */
+.app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--rail-height);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--accent) 12%,
+    var(--accent-strong) 50%,
+    var(--accent) 88%,
+    transparent 100%
+  );
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
+  background-color: var(--bg-void);
+}
+
+/* ==========================================================================
+   滚动条 — 更细、更克制
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #2c3142);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #3a4059);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ==========================================================================
+   减弱动效偏好
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   普通模式（浅色）— 通过 [data-theme='light'] 覆盖令牌
+   整体背景为白色，主色降饱和度以保证对比度
+   ========================================================================== */
+:root[data-theme='light'] {
+  /* 表面层级 */
+  --bg-void: #ffffff;
+  --bg-surface: #f7f8fa;
+  --bg-elevated: #eef0f4;
+  --bg-input: #ffffff;
+  --bg-hover: #e8eaf0;
+  --bg-active: #dde0e8;
+
+  /* 文本 */
+  --text-primary: #1a1d24;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+
+  /* 强调色（降饱和以保证白底可读性） */
+  --accent: #0891b2;
+  --accent-strong: #06b6d4;
+  --accent-soft: rgba(8, 145, 178, 0.12);
+  --accent-line: rgba(8, 145, 178, 0.45);
+  --accent-glow: rgba(8, 145, 178, 0.3);
+
+  /* 状态色 */
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --warning: #d97706;
+  --success: #059669;
+
+  /* 描边 */
+  --border: #e5e7eb;
+  --border-soft: #eef0f4;
+  --border-strong: #d1d5db;
+
+  /* 状态栏（浅色：极淡的灰） */
+  --statusbar-bg: linear-gradient(90deg, #e9ecf1 0%, #dde1e8 100%);
+  --statusbar-fg: #475569;
+  --statusbar-border: #cbd5e1;
+  --statusbar-hover: rgba(0, 0, 0, 0.05);
+  --statusbar-active: rgba(0, 0, 0, 0.1);
+  --statusbar-save-ok: #059669;
+  --statusbar-save-fail: #dc2626;
+
+  /* 滚动条 */
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+}
+
+/* 浅色模式下的命令面板遮罩更浅 */
+:root[data-theme='light'] .command-palette-mask {
+  background-color: rgba(15, 23, 42, 0.35);
+}
+
+/* 浅色模式下顶部的"导轨"渐变更柔和 */
+:root[data-theme='light'] .app::before {
+  opacity: 0.65;
+}
+
+/* ==========================================================================
+   主题切换平滑过渡
+   ========================================================================== */
+html,
+body,
+.app,
+.app-main,
+.sidebar,
+.tabbar,
+.statusbar,
+.recent-panel,
+.command-palette,
+.editor-area {
+  transition: background-color var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out);
+}

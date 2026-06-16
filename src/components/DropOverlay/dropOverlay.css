@@ -1,0 +1,71 @@
+/* ==========================================================================
+   文件拖入遮罩
+   ========================================================================== */
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(12, 14, 19, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: none;
+  animation: drop-fade var(--dur-fast) var(--ease-out);
+}
+
+.drop-overlay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 56px;
+  background-color: var(--bg-surface);
+  border: 1.5px dashed var(--accent);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.15),
+    0 12px 40px rgba(0, 0, 0, 0.45);
+  color: var(--text-primary);
+  text-align: center;
+  min-width: 280px;
+}
+
+.drop-overlay-icon {
+  font-size: 36px;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--accent-glow);
+}
+
+.drop-overlay-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.drop-overlay-hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+@keyframes drop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 浅色模式遮罩 */
+:root[data-theme='light'] .drop-overlay {
+  background-color: rgba(15, 23, 42, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop-overlay {
+    animation: none;
+  }
+}
