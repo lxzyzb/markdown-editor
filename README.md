@@ -1,4 +1,4 @@
-# FileEdit
+# markdown-editor
 
 一个基于 **React + Electron + TypeScript + Vite** 的轻量级、跨平台文件编辑器。
 
@@ -104,14 +104,3 @@ npm run dist:linux
 - 关闭 `nodeIntegration`
 - 渲染进程只能通过 `window.electronAPI` 调用主进程
 - 主进程负责所有文件系统操作
-
-## 路线图
-
-- [x] M1 基础框架
-- [x] M2 编辑核心（编辑器 + 文件读写 + 标签页）
-- [ ] M3 增强功能（文件树 / 设置中心 / 主题 / 命令面板）
-- [ ] M4 完善与发布（自动更新 / 多平台打包 / 测试）
-
-## 许可
-
-MIT
