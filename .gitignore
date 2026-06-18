@@ -42,3 +42,6 @@ coverage/
 .cache/
 .eslintcache
 .prettiercache
+
+# Electron 用户数据
+.userdata/
