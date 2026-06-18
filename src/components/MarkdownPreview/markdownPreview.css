@@ -134,6 +134,21 @@
   caret-color: var(--accent);
 }
 
+/* 多行编辑：用 textarea 替代 input，自动撑高，行内换行不破坏多行结构 */
+.md-line-textarea {
+  resize: none;
+  overflow: hidden;
+  /* textarea 默认 vertical-align 是 baseline，会让首行与上一行基线对齐造成轻微错位 */
+  vertical-align: top;
+  /* 显式声明行高与字体族，避免某些浏览器下 textarea 不完全继承 font 简写 */
+  line-height: inherit;
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+  /* 不让浏览器在内容末尾出现滚动条 */
+  box-sizing: border-box;
+}
+
 .md-line-input::placeholder {
   color: var(--text-faint);
 }
@@ -166,21 +181,49 @@
 }
 .md-block-h1 .md-line-input {
   font-size: 1.85em;
-  /* 与 h1 保持完全一致：底部分隔线 + 内边距 + 与下一块的外边距 */
+  /* 与 h1 保持完全一致：上下 margin、底部分隔线、内边距 —— 任何一项不一致，
+     都会在显示态↔编辑态切换时产生肉眼可见的"跳动" */
+  margin-top: 20px;
+  margin-bottom: 8px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 8px;
 }
 .md-block-h2 .md-line-input {
   font-size: 1.45em;
-  /* 与 h2 保持完全一致 */
+  /* 与 h2 保持完全一致 —— 包含 margin-top: 16px、margin-bottom: 6px */
+  margin-top: 16px;
+  margin-bottom: 6px;
   padding-bottom: 4px;
   border-bottom: 1px solid var(--border-soft);
 }
-.md-block-h3 .md-line-input { font-size: 1.2em; }
-.md-block-h4 .md-line-input { font-size: 1.05em; }
-.md-block-h5 .md-line-input { font-size: 0.95em; color: var(--text-secondary); }
-.md-block-h6 .md-line-input { font-size: 0.9em; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+.md-block-h3 .md-line-input {
+  font-size: 1.2em;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.md-block-h4 .md-line-input {
+  font-size: 1.05em;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+.md-block-h5 .md-line-input {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.md-block-h6 .md-line-input {
+  font-size: 0.9em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+/* 文档首位的标题编辑时也不要额外撑高，与显示态 .md-block-heading:first-child 复位规则保持一致 */
+.md-preview > .md-block-heading:first-child .md-line-input {
+  margin-top: 0;
+}
 
 /* ==========================================================================
    类型样式：选择器改为 .md-line-html 内部的元素
@@ -194,12 +237,49 @@
   letter-spacing: -0.01em;
   color: var(--text-primary);
 }
-.md-block-heading .md-line-html h1 { font-size: 1.85em; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
-.md-block-heading .md-line-html h2 { font-size: 1.45em; padding-bottom: 4px; border-bottom: 1px solid var(--border-soft); }
-.md-block-heading .md-line-html h3 { font-size: 1.2em; }
-.md-block-heading .md-line-html h4 { font-size: 1.05em; }
-.md-block-heading .md-line-html h5 { font-size: 0.95em; color: var(--text-secondary); }
-.md-block-heading .md-line-html h6 { font-size: 0.9em; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+/* 给标题上下都留出"换行"空间 —— 上面多、下面少，符合排版节奏 */
+.md-block-heading .md-line-html h1 {
+  font-size: 1.85em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+.md-block-heading .md-line-html h2 {
+  font-size: 1.45em;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+.md-block-heading .md-line-html h3 {
+  font-size: 1.2em;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.md-block-heading .md-line-html h4 {
+  font-size: 1.05em;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+.md-block-heading .md-line-html h5 {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.md-block-heading .md-line-html h6 {
+  font-size: 0.9em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+/* 文档首位的标题不要额外撑高，避免与 .md-preview 的 padding-top 叠加把首行推得太远 */
+.md-preview > .md-block-heading:first-child .md-line-html :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 0;
+}
 
 /* 段落 */
 .md-block-paragraph .md-line-html p {
@@ -210,23 +290,35 @@
 .md-block-list .md-line-html ul,
 .md-block-list .md-line-html ol {
   margin: 0;
-  padding-left: 1.4em;
+  padding-left: 1.6em;
 }
 .md-block-list .md-line-html li {
-  margin: 0.1em 0;
+  margin: 0.15em 0;
 }
 .md-block-list .md-line-html li > p {
   margin: 0;
+}
+/* 嵌套列表的缩进更紧凑 */
+.md-block-list .md-line-html li > ul,
+.md-block-list .md-line-html li > ol {
+  margin: 0.1em 0;
 }
 
 /* 引用 */
 .md-block-blockquote .md-line-html blockquote {
   margin: 0;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-left: 3px solid var(--accent);
   color: var(--text-secondary);
   background-color: var(--bg-surface);
   border-radius: 0 3px 3px 0;
+  font-style: italic;
+}
+.md-block-blockquote .md-line-html blockquote > :first-child {
+  margin-top: 0;
+}
+.md-block-blockquote .md-line-html blockquote > :last-child {
+  margin-bottom: 0;
 }
 
 /* 代码块：让行内 code 块在一行里显示为代码块样式 */
@@ -235,7 +327,7 @@
   background-color: var(--bg-elevated);
   border-left: 1px solid var(--border-soft);
   border-right: 1px solid var(--border-soft);
-  padding: 1px 0;
+  padding: 2px 0;
   font-family: var(--font-mono);
   font-size: 12.5px;
   line-height: 1.55;
@@ -262,22 +354,26 @@
   line-height: 1.55;
 }
 
-/* 水平线 */
+/* 水平线：居中且更柔和 */
 .md-block-hr .md-line-html hr {
-  margin: 0;
+  margin: 8px 0;
   border: none;
   border-top: 1px solid var(--border);
 }
 
-/* 链接 */
+/* 链接：用 text-decoration + text-underline-offset 让下划线真正对齐到文字基线
+   —— 之前用 border-bottom 模拟，下划线贴着行底而非文字基线，
+      遇到中文/带下缘字母(g p q y)就会明显错位 */
 .md-preview a {
   color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color var(--dur-fast) var(--ease-out);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
 }
 .md-preview a:hover {
-  border-bottom-color: var(--accent);
+  text-decoration-color: var(--accent);
 }
 
 /* 强调 */
@@ -312,6 +408,9 @@
   font-size: 0.92em;
   width: 100%;
   table-layout: fixed; /* 列宽由首行决定，避免内容长短造成错位 */
+  /* 显式给 table 自身加 border，配合 border-collapse: collapse 形成完整外框，
+     避免最左/最右的 cell 边框在 overflow-x: auto 容器内被裁掉 */
+  border: 1px solid var(--border);
 }
 .md-preview th, .md-preview td {
   border: 1px solid var(--border);
@@ -345,6 +444,14 @@
   display: table-row; /* 覆盖 .md-line 的 display:block，保留表格行布局 */
   cursor: text;
   transition: background-color var(--dur-fast) var(--ease-out);
+  /* 关键：.md-line 上的 border-left: 2px solid transparent 会在 border-collapse: collapse
+     模式下与最左 cell 的 1px border 合并 —— 按"宽度最大优先"的合并规则，
+     2px transparent 会"吃掉" 1px var(--border)，导致左/右边框不可见。
+     这里把行级 border 全部清零，让 cell 自身的 border 胜出。 */
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  min-height: 0;
 }
 .md-line-table-row:hover {
   background-color: transparent; /* 遵守：点击区域样式不要变化 */
@@ -386,20 +493,38 @@
   background-color: var(--bg-hover, rgba(0, 0, 0, 0.04));
 }
 .md-segment-editing {
-  display: inline-block;
+  /* 关键：与显示态保持完全一致的盒子尺寸（display + padding + border）
+     —— 之前用 inline-block + border + padding 撑大了盒子，切换时明显抖动 */
+  display: inline;
   background-color: var(--bg-surface);
-  border: 1px solid var(--accent);
   border-radius: 2px;
-  padding: 0 4px;
-  line-height: 1.4;
+  color: inherit;
+  font: inherit;
+}
+/* 补回显示态的字形特征 —— 否则 font: inherit 会把 <strong> 的 700、
+   <em> 的 italic、<del> 的 faint 色一并清掉，造成视觉上的"扁平化" */
+.md-segment-editing.md-segment-bold { font-weight: 700; }
+.md-segment-editing.md-segment-italic { font-style: italic; }
+.md-segment-editing.md-segment-strikethrough { color: var(--text-faint); }
+/* code 段的编辑态需要补回与 .md-inline-code 一致的 padding 和字体，
+   否则从有 padding + monospace 0.9em 的 <code> 切到编辑态也会抖 */
+.md-segment-editing.md-segment-code {
+  display: inline;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
 }
 .md-segment-editing .md-segment-input {
-  font-family: var(--font-mono);
-  font-size: 0.92em;
+  /* 关键：让 input 继承父元素字体，而不是强制 monospace 0.92em
+     —— strong/em/del 显示态是继承的 sans-serif 14px，
+        code 显示态是 monospace 0.9em，input 必须跟随父元素（外层 span），
+        否则字族/尺寸会瞬间切换、产生抖动 */
+  font: inherit;
+  color: inherit;
   border: none;
   outline: none;
   background: transparent;
-  color: var(--text-primary);
   padding: 0;
   margin: 0;
   min-width: 1ch;
@@ -413,14 +538,19 @@
   font-size: 0.9em;
 }
 
-/* 图片 */
+/* 图片：居中、圆角、不超过容器 */
 .md-preview img {
-  max-width: 100%;  border-radius: 3px;
+  display: block;
+  max-width: 100%;
+  margin: 4px auto;
+  border-radius: 4px;
+  border: 1px solid var(--border-soft);
 }
 
-/* 任务列表 */
+/* 任务列表：让 checkbox 与文字基线对齐 */
 .md-preview input[type='checkbox'] {
-  margin-right: 6px;
+  margin: 0 6px 0 0;
+  vertical-align: -0.15em;
   accent-color: var(--accent);
 }
 

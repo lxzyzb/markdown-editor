@@ -104,6 +104,7 @@ export default function RecentPanel() {
   const totalCount = view.length;
   const groupCounts: Record<GroupKey, number> = {
     today: groups.today.length,
+    yesterday: groups.yesterday.length,
     week: groups.week.length,
     month: groups.month.length,
     year: groups.year.length,

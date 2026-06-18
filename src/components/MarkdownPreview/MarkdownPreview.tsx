@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { marked } from 'marked';
 import { useEditorStore } from '../../store/editorStore';
 import {
@@ -199,14 +199,36 @@ export default function MarkdownPreview({ tabId, content, fileName }: Props) {
 
   const [editing, setEditing] = useState<EditingTarget | null>(null);
   const [draft, setDraft] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  // 行编辑用 textarea（支持多行），片段编辑用 input，行内片段永远不会与行级 textarea 同时渲染
+  const lineRef = useRef<HTMLTextAreaElement>(null);
+  const segRef = useRef<HTMLInputElement>(null);
+  const tableRef = useRef<HTMLInputElement>(null);
 
-  // 进入编辑态：仅聚焦，不再自动 select()（避免浏览器默认蓝色高亮盖住整行）
-  useEffect(() => {
-    if (editing && inputRef.current) {
-      inputRef.current.focus();
+  // 进入编辑态：聚焦对应的输入元素；同时让 textarea 自适应到内容高度
+  // 必须用 useLayoutEffect 而非 useEffect —— 后者在 paint 之后才跑，
+  // 会导致浏览器先用 rows=1 的默认高度 paint 一次，再被改成 scrollHeight，
+  // 那一帧的高度差就是用户看到的"上下抖动"（h2/h3 小字号下尤其明显）
+  useLayoutEffect(() => {
+    if (!editing) return;
+    const target: HTMLElement | null =
+      editing.segmentIndex !== undefined ? segRef.current : lineRef.current;
+    if (target) {
+      target.focus();
+      if (target instanceof HTMLTextAreaElement) {
+        target.style.height = 'auto';
+        target.style.height = `${target.scrollHeight}px`;
+      }
     }
   }, [editing]);
+
+  // draft 变化时同步 textarea 高度（用户换行 / 输入导致高度变化）
+  useLayoutEffect(() => {
+    if (editing && lineRef.current) {
+      const el = lineRef.current;
+      el.style.height = 'auto';
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  }, [draft, editing]);
 
   const startEdit = (blockIndex: number, lineIndex: number, segmentIndex?: number) => {
     const block = blocks[blockIndex];
@@ -241,21 +263,25 @@ export default function MarkdownPreview({ tabId, content, fileName }: Props) {
       return;
     }
 
-    let newLine: string;
+    let newLines: string[];
     if (segmentIndex !== undefined) {
       // 片段编辑：draft 已是完整 markdown，直接按 [start, end) 替换回原行
       const segs = parseInlineSegments(oldLine);
       const seg = segs[segmentIndex];
       if (!seg) { setEditing(null); return; }
       if (draft === seg.raw) { setEditing(null); return; }
-      newLine = oldLine.slice(0, seg.start) + draft + oldLine.slice(seg.end);
+      newLines = [oldLine.slice(0, seg.start) + draft + oldLine.slice(seg.end)];
     } else {
-      // 整行编辑：直接替换
-      if (oldLine === draft) { setEditing(null); return; }
-      newLine = draft;
+      // 整行编辑：draft 可能包含多行（textarea 中 Shift+Enter 换行）
+      newLines = draft.split(/\r?\n/);
+      if (newLines.length === 1 && newLines[0] === oldLine) {
+        setEditing(null);
+        return;
+      }
     }
 
-    allLines[targetIndex] = newLine;
+    // 替换对应位置的 1 行 / N 行
+    allLines.splice(targetIndex, 1, ...newLines);
     setEditing(null);
     updateContent(tabId, allLines.join('\n'));
   };
@@ -298,7 +324,7 @@ export default function MarkdownPreview({ tabId, content, fileName }: Props) {
               block={b}
               blockIndex={blockIndex}
               editing={editing}
-              inputRef={inputRef}
+              inputRef={tableRef}
               onStartEdit={startEdit}
               onCommitRow={commitRowEdit}
               onCancel={cancelEdit}
@@ -404,14 +430,16 @@ export default function MarkdownPreview({ tabId, content, fileName }: Props) {
                   title="点击编辑此行"
                 >
                   {isLineEditing ? (
-                    <input
-                      ref={inputRef}
-                      className="md-line-input"
+                    <textarea
+                      ref={lineRef}
+                      className="md-line-input md-line-textarea"
                       value={draft}
+                      rows={1}
                       onChange={(e) => setDraft(e.target.value)}
                       onBlur={commitEdit}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        // Enter 提交；Shift+Enter 插入换行（保留多行结构）
+                        if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
                           commitEdit();
                         } else if (e.key === 'Escape') {
@@ -431,7 +459,7 @@ export default function MarkdownPreview({ tabId, content, fileName }: Props) {
                               className={`md-segment md-segment-${seg.type} md-segment-editing`}
                             >
                               <input
-                                ref={inputRef}
+                                ref={segRef}
                                 className="md-line-input md-segment-input"
                                 value={draft}
                                 onChange={(e) => setDraft(e.target.value)}

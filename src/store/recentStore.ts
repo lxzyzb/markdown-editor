@@ -6,7 +6,7 @@ export interface RecentEntry {
   openedAt: number;
 }
 
-export type GroupKey = 'today' | 'week' | 'month' | 'year' | 'older';
+export type GroupKey = 'today' | 'yesterday' | 'week' | 'month' | 'year' | 'older';
 
 interface RecentState {
   items: RecentEntry[];
@@ -124,40 +124,55 @@ export const useRecentStore = create<RecentState>((set, get) => ({
 }));
 
 /**
- * 把列表按时间分组
- * - today: 24h 内
- * - week: 7 天内
- * - month: 30 天内
- * - year: 365 天内
- * - older: 更早
+ * 把列表按时间分组（按自然日 / 7 天 / 30 天 / 365 天 划分）
+ * - today:     今天 00:00 之后
+ * - yesterday: 昨天 00:00 ~ 今天 00:00
+ * - week:      7 天内，但不属于 today / yesterday
+ * - month:     30 天内，但不属于上面三组
+ * - year:      365 天内，但不属于上面四组
+ * - older:     更早
  */
 export function groupRecent(items: RecentEntry[]): Record<GroupKey, RecentEntry[]> {
-  const now = Date.now();
+  const now = new Date();
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  ).getTime();
+  const startOfYesterday = startOfToday - 24 * 3600 * 1000;
   const day = 24 * 3600 * 1000;
+  const nowMs = Date.now();
   const groups: Record<GroupKey, RecentEntry[]> = {
     today: [],
+    yesterday: [],
     week: [],
     month: [],
     year: [],
     older: [],
   };
   for (const it of items) {
-    const age = now - it.openedAt;
-    if (age <= day) groups.today.push(it);
-    else if (age <= 7 * day) groups.week.push(it);
-    else if (age <= 30 * day) groups.month.push(it);
-    else if (age <= 365 * day) groups.year.push(it);
-    else groups.older.push(it);
+    if (it.openedAt >= startOfToday) {
+      groups.today.push(it);
+    } else if (it.openedAt >= startOfYesterday) {
+      groups.yesterday.push(it);
+    } else {
+      const age = nowMs - it.openedAt;
+      if (age <= 7 * day) groups.week.push(it);
+      else if (age <= 30 * day) groups.month.push(it);
+      else if (age <= 365 * day) groups.year.push(it);
+      else groups.older.push(it);
+    }
   }
   return groups;
 }
 
 export const GROUP_LABELS: Record<GroupKey, string> = {
   today: '今天',
+  yesterday: '昨天',
   week: '本周',
   month: '一个月内',
   year: '一年内',
   older: '更早',
 };
 
-export const GROUP_ORDER: GroupKey[] = ['today', 'week', 'month', 'year', 'older'];
+export const GROUP_ORDER: GroupKey[] = ['today', 'yesterday', 'week', 'month', 'year', 'older'];
